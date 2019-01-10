@@ -103,15 +103,13 @@ FATAL waiting for openshift-console URL: context deadline exceeded
 
 ## Using an External Load Balancer
 
-This documents how to shift from the api VM load balancer (which is not
-HA) to an external load balancer.
+This documents how to shift from the api VM load balancer, which is intended for initial cluster deployment and not highly available, to an external load balancer.
 
 The load balancer must serve ports 6443, 443, and 80 to any users of
 the system.  Port 49500 is for serving ignition startup configurations
-to the OpenShift nodes and should not be reachable by the outside world.
+to the OpenShift nodes and should not be reachable outside of the cluster.
 
-The first step is to add floating IPs to all the master nodes. Usually
-the public network here is named 'public':
+The first step is to add floating IPs to all the master nodes:
 
 * `openstack floating ip create --port master-port-0 <public network>`
 * `openstack floating ip create --port master-port-1 <public network>`
@@ -129,34 +127,31 @@ The other port configurations are identical.
 listen <cluster name>-api-6443
     bind 0.0.0.0:6443
     mode tcp
-    stats enable
-    stats uri /haproxy?status
     balance roundrobin
-    server ostest-master-2 <floating ip>:6443 check
-    server ostest-master-0 <floating ip>:6443 check
-    server ostest-master-1 <floating ip>:6443 check
+    server <cluster name>-master-2 <floating ip>:6443 check
+    server <cluster name>-master-0 <floating ip>:6443 check
+    server <cluster name>-master-1 <floating ip>:6443 check
 ```
 
 Next step is to allow access to the network the load balancer is on:
 
-* `openstack security group rule create master --remote-ip <subnet CIDR> --ingress --protocol tcp --dst-port 6443`
-* `openstack security group rule create master --remote-ip <subnet CIDR> --ingress --protocol tcp --dst-port 443`
-* `openstack security group rule create master --remote-ip <subnet CIDR> --ingress --protocol tcp --dst-port 80`
+* `openstack security group rule create master --remote-ip <load balancer CIDR> --ingress --protocol tcp --dst-port 6443`
+* `openstack security group rule create master --remote-ip <load balancer CIDR> --ingress --protocol tcp --dst-port 443`
+* `openstack security group rule create master --remote-ip <load balancer CIDR> --ingress --protocol tcp --dst-port 80`
 
-Where subnet CIDR is the network the load balancer is on.  You could
+You could
 also specify a specific IP address with /32 if you wish.
 
 You can verify the operation of the load balancer now if you wish, using the
 curl commands given below.
 
 Now the DNS entry for <cluster name>-api.<base domain> needs to be updated
-to point to the new load balancer.  In our case the cluster name is
-'ostest' and the domain is 'shiftstack.com':
+to point to the new load balancer:
 
-* `<load balancer ip> ostest-api.shiftstack.com`
+* `<load balancer ip> <cluster-name>-api.<base domain>`
 
 The external load balancer should now be operation along with your own
-DNS solution.  It's best to test this configuration before removing
+DNS solution. It's best to test this configuration before removing
 the api. The following curl command is an example of how
 to check functionality:
 
@@ -179,7 +174,7 @@ Result:
 ```
 
 Another useful thing to check is that the ignition configurations are only
-available from within the deployment:
+available from within the deployment. The following command should only succede from a node in the openshift cluster:
 
 * `curl https://<loadbalancer ip>:49500/config/master --insecure`
 
