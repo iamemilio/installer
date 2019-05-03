@@ -209,14 +209,6 @@ ${length(var.lb_floating_ip) == 0 ? "api  IN  A  ${var.service_port_ip}" : "api 
 ${length(var.lb_floating_ip) == 0 ? "*.apps  IN  A  ${var.service_port_ip}" : "*.apps  IN  A  ${var.lb_floating_ip}"}
 
 api-int  IN  A  ${var.service_port_ip}
-
-bootstrap.${var.cluster_domain}  IN  A  ${var.bootstrap_ip}
-${replace(join("\n", formatlist("%s  IN  A %s", var.master_port_names, var.master_ips)), "port-", "")}
-${replace(join("\n", formatlist("master-%s  IN  A %s", var.master_port_names, var.master_ips)), "${var.cluster_id}-master-port-", "")}
-
-${replace(join("\n", formatlist("etcd-%s  IN  A  %s", var.master_port_names, var.master_ips)), "${var.cluster_id}-master-port-", "")}
-${replace(join("\n", formatlist("_etcd-server-ssl._tcp  8640  IN  SRV  0  10  2380   etcd-%s.${var.cluster_domain}.", var.master_port_names)), "${var.cluster_id}-master-port-", "")}
-EOF
   }
 }
 
@@ -225,7 +217,7 @@ data "ignition_systemd_unit" "local_dns" {
 
   content = <<EOF
 [Unit]
-Description=Internal DNS serving the required OpenShift records
+Description=Internal DNS serving the required OpenShift records for bootstrapping
 
 [Service]
 ExecStart=/bin/podman run --rm -i -t -m 128m --net host --cap-add=NET_ADMIN -v /etc/coredns:/etc/coredns:Z openshift/origin-coredns:v4.0 -conf /etc/coredns/Corefile
