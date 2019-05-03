@@ -240,7 +240,7 @@ variable "openstack_extra_tags" {
   default = {}
 
   description = <<EOF
-(optional) Extra AWS tags to be applied to created resources.
+(optional) Extra tags to be applied to created resources.
 
 Example: `{ "key" = "value", "foo" = "bar" }`
 EOF

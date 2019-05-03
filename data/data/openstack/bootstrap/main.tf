@@ -18,40 +18,73 @@ data "ignition_config" "redirect" {
 
   files = [
     data.ignition_file.hostname.id,
-    data.ignition_file.bootstrap_ifcfg.id,
+    data.ignition_file.dns_conf.id,
+    data.ignition_file.dhcp_conf.id,
+    data.ignition_file.hosts.id,
   ]
 }
 
-data "ignition_file" "bootstrap_ifcfg" {
+data "ignition_file" "dhcp_conf" {
   filesystem = "root"
-  mode       = "420" // 0644
-  path       = "/etc/sysconfig/network-scripts/ifcfg-eth0"
+  mode       = "420"
+  path       = "/etc/NetworkManager/conf.d/dhcp-client.conf"
 
   content {
     content = <<EOF
-DEVICE="eth0"
-BOOTPROTO="dhcp"
-ONBOOT="yes"
-TYPE="Ethernet"
-PERSISTENT_DHCLIENT="yes"
-DNS1="${var.service_vm_fixed_ip}"
-PEERDNS="no"
-NM_CONTROLLED="yes"
+[main]
+dhcp=dhclient
 EOF
+  }
+}
 
+data "ignition_file" "dns_conf" {
+  filesystem = "root"
+  mode = "420"
+  path = "/etc/dhcp/dhclient.conf"
+
+  # FIXME(mandre) this will likely cause delay with bootstrap node networking
+  # until the master come up and are able to serve DNS queries.  Not sure the
+  # bootstrap is trying to resolve anything it doesn't have in its hosts
+  # file...
+  # BareMetal solved this by running coredns on the bootstrap node
+  #
+  # NOTE(shadower) bootstrap's waiting for the etcd cluster seems to
+  # always fail the first time because of this. The second attempt
+  # succeeds, but we should probably run the core dns there too so
+  # that:
+  # 1. We don't show spurious errors in the logs
+  # 2. Align better with what the baremetal platfrorm is doing
+  content {
+    content = <<EOF
+send dhcp-client-identifier = hardware;
+prepend domain-name-servers ${var.node_dns_ip};
+EOF
   }
 }
 
 data "ignition_file" "hostname" {
   filesystem = "root"
-  mode = "420" // 0644
-  path = "/etc/hostname"
+  mode       = "420" // 0644
+  path       = "/etc/hostname"
 
   content {
     content = <<EOF
 ${var.cluster_id}-bootstrap
 EOF
+  }
+}
 
+data "ignition_file" "hosts" {
+  filesystem = "root"
+  mode = "420" // 0644
+  path = "/etc/hosts"
+
+  content {
+    content = <<EOF
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+${var.api_int_ip} api-int.${var.cluster_domain} api.${var.cluster_domain}
+EOF
   }
 }
 
@@ -81,4 +114,3 @@ resource "openstack_compute_instance_v2" "bootstrap" {
     openshiftClusterID = var.cluster_id
   }
 }
-

@@ -43,10 +43,6 @@ variable "master_port_ids" {
   description = "List of port ids for the master nodes"
 }
 
-variable "master_port_names" {
-  type = list(string)
-}
-
 variable "user_data_ign" {
   type = string
 }
@@ -56,9 +52,5 @@ variable "api_int_ip" {
 }
 
 variable "node_dns_ip" {
-  type = string
-}
-
-variable "service_vm_fixed_ip" {
   type = string
 }

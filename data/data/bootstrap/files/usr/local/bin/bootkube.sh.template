@@ -19,6 +19,8 @@ fi
 MACHINE_CONFIG_OPERATOR_IMAGE=$(podman run --quiet --rm ${release} image machine-config-operator)
 MACHINE_CONFIG_OSCONTENT=$(podman run --quiet --rm ${release} image machine-os-content)
 MACHINE_CONFIG_ETCD_IMAGE=$(podman run --quiet --rm ${release} image etcd)
+# FIXME(shadower): without this, the etcd containers later on keep failing with our custom MCO. Investigate what's goin on.
+podman pull --quiet $MACHINE_CONFIG_ETCD_IMAGE
 MACHINE_CONFIG_KUBE_CLIENT_AGENT_IMAGE=$(podman run --quiet --rm ${release} image kube-client-agent)
 MACHINE_CONFIG_INFRA_IMAGE=$(podman run --quiet --rm ${release} image pod)
 
