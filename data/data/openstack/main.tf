@@ -60,6 +60,7 @@ module "masters" {
   cluster_domain = var.cluster_domain
   flavor_name    = var.openstack_master_flavor_name
   instance_count = var.master_count
+  bootstrap_ip   = module.topology.bootstrap_port_ip
   master_sg_ids = concat(
     var.openstack_master_extra_sg_ids,
     [module.topology.master_sg_id],
@@ -67,6 +68,8 @@ module "masters" {
   master_port_ids     = module.topology.master_port_ids
   user_data_ign       = var.ignition_master
   service_vm_fixed_ip = module.topology.service_vm_fixed_ip
+  master_ips        = module.topology.master_ips
+  master_port_names = module.topology.master_port_names
 }
 
 # TODO(shadower) add a dns module here

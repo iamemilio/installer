@@ -39,3 +39,14 @@ variable "service_vm_fixed_ip" {
   type = string
 }
 
+variable "bootstrap_ip" {
+  type = string
+}
+
+variable "master_ips" {
+  type = list(string)
+}
+
+variable "master_port_names" {
+  type = list(string)
+}
