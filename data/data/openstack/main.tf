@@ -67,6 +67,9 @@ module "masters" {
   master_port_ids     = module.topology.master_port_ids
   user_data_ign       = var.ignition_master
   service_vm_fixed_ip = module.topology.service_vm_fixed_ip
+  master_ips        = module.topology.master_ips
+  master_port_names = module.topology.master_port_names
+  lb_floating_ip    = var.openstack_lb_floating_ip
 }
 
 # TODO(shadower) add a dns module here

@@ -21,6 +21,26 @@ EOF
   }
 }
 
+data "ignition_file" "master_addresses"{
+  filesystem = "root"
+  mode       = "420"
+  path       = "/etc/kubernetes/static-pod-resources/haproxy/master_addresses"
+
+  content {
+    content = replace(join("\n    ", formatlist("server master-%s %s check port 6443", var.master_port_names, var.master_ips)), "master-port-", "")
+  }
+}
+
+data "ignition_file" "lb_fip"{
+  filesystem = "root"
+  mode       = "420"
+  path       = "/etc/kubernetes/static-pod-resources/haproxy/lb_fip"
+
+  content {
+    content = "${var.lb_floating_ip}"
+  }
+}
+
 data "ignition_config" "master_ignition_config" {
   count = var.instance_count
 
@@ -30,6 +50,8 @@ data "ignition_config" "master_ignition_config" {
 
   files = [
     element(data.ignition_file.hostname.*.id, count.index),
+    data.ignition_file.lb_fip.id,
+    data.ignition_file.master_addresses.id,
   ]
 }
 
