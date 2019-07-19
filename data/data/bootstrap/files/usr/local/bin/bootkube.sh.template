@@ -35,6 +35,12 @@ OPENSHIFT_HYPERSHIFT_IMAGE=$(podman run --quiet --rm ${release} image hypershift
 OPENSHIFT_HYPERKUBE_IMAGE=$(podman run --quiet --rm ${release} image hyperkube)
 
 CLUSTER_BOOTSTRAP_IMAGE=$(podman run --quiet --rm ${release} image cluster-bootstrap)
+KEEPALIVED_IMAGE=$(podman run --quiet --rm ${release} image keepalived-ipfailover)
+COREDNS_IMAGE=$(podman run --quiet --rm ${release} image coredns)
+MDNS_PUBLISHER_IMAGE=$(podman run --quiet --rm ${release} image mdns-publisher)
+HAPROXY_IMAGE=$(podman run --quiet --rm ${release} image haproxy-router)
+RUNTIMECFG_IMAGE=$(podman run --quiet --rm ${release} image baremetal-runtimecfg)
+
 
 # Now, as early as possible we replace the pause image and reload crio to use it, to ensure
 # that we're using the pause image from our payload just like the primary cluster.
@@ -196,18 +202,27 @@ then
 			--machine-config-operator-image=${MACHINE_CONFIG_OPERATOR_IMAGE} \
 			--machine-config-oscontent-image=${MACHINE_CONFIG_OSCONTENT} \
 			--infra-image=${MACHINE_CONFIG_INFRA_IMAGE} \
+			--keepalived-image=${KEEPALIVED_IMAGE} \
+			--coredns-image=${COREDNS_IMAGE} \
+			--mdns-publisher-image=${MDNS_PUBLISHER_IMAGE} \
+			--haproxy-image=${HAPROXY_IMAGE} \
+			--baremetal-runtimecfg-image=${RUNTIMECFG_IMAGE} \
 			--cloud-config-file=/assets/manifests/cloud-provider-config.yaml
 
 	# Bootstrap MachineConfigController uses /etc/mcc/bootstrap/manifests/ dir to
 	# 1. read the controller config rendered by MachineConfigOperator
 	# 2. read the default MachineConfigPools rendered by MachineConfigOperator
 	# 3. read any additional MachineConfigs that are needed for the default MachineConfigPools.
-	mkdir --parents /etc/mcc/bootstrap /etc/mcs/bootstrap /etc/kubernetes/manifests
+	mkdir --parents /etc/mcc/bootstrap /etc/mcs/bootstrap /etc/kubernetes/manifests /etc/kubernetes/static-pod-resources
 	cp mco-bootstrap/bootstrap/manifests/* /etc/mcc/bootstrap/
 	cp openshift/* /etc/mcc/bootstrap/
 	cp auth/kubeconfig-kubelet /etc/mcs/kubeconfig
 	cp mco-bootstrap/bootstrap/machineconfigoperator-bootstrap-pod.yaml /etc/kubernetes/manifests/
 	cp mco-bootstrap/manifests/* manifests/
+	cp mco-bootstrap/manifests/coredns.yaml /etc/kubernetes/manifests
+	cp -r mco-bootstrap/static-pod-resources/coredns /etc/kubernetes/static-pod-resources
+	cp mco-bootstrap/manifests/keepalived.yaml /etc/kubernetes/manifests
+	cp -r mco-bootstrap/static-pod-resources/keepalived /etc/kubernetes/static-pod-resources
 
 	# /etc/ssl/mcs/tls.{crt, key} are locations for MachineConfigServer's tls assets.
 	mkdir --parents /etc/ssl/mcs/

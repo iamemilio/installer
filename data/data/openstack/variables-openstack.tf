@@ -279,6 +279,11 @@ variable "openstack_node_dns_ip" {
   description = "IP on the nodes subnet reserved for node dns VIP."
 }
 
+variable "openstack_ingress_ip" {
+  type        = string
+  description = "IP on the nodes subnet reserved for the ingress VIP."
+}
+
 variable "openstack_master_flavor_name" {
   type        = string
   description = "Instance size for the master node(s). Example: `m1.medium`."

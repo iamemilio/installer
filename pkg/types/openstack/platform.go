@@ -36,6 +36,9 @@ type Platform struct {
 	// IP in the machineCIDR to use for simulated route53.
 	DNSVIP string `json:"dnsVIP"`
 
+	// IngressVIP is the VIP to use for ingress traffic
+	IngressVIP string `json:"ingressVIP"`
+
 	// TrunkSupport
 	// Whether OpenStack ports can be trunked
 	TrunkSupport string `json:"trunkSupport"`

@@ -11,8 +11,9 @@ import (
 
 // Defaults for the openstack platform.
 const (
-	APIVIP = ""
-	DNSVIP = ""
+	APIVIP     = ""
+	DNSVIP     = ""
+	IngressVIP = ""
 )
 
 // SetPlatformDefaults sets the defaults for the platform.
@@ -32,6 +33,15 @@ func SetPlatformDefaults(p *openstack.Platform, c *types.InstallConfig) {
 			p.DNSVIP = fmt.Sprintf("failed to get DNSVIP from MachineCIDR: %s", err.Error())
 		} else {
 			p.DNSVIP = vip.String()
+		}
+	}
+
+	if p.IngressVIP == "" {
+		vip, err := cidr.Host(&c.Networking.MachineCIDR.IPNet, 7)
+		if err != nil {
+			p.IngressVIP = fmt.Sprintf("failed to get DNSVIP from MachineCIDR: %s", err.Error())
+		} else {
+			p.IngressVIP = vip.String()
 		}
 	}
 }
