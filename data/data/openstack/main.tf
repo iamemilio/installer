@@ -69,6 +69,7 @@ module "topology" {
   lb_floating_ip      = var.openstack_lb_floating_ip
   api_int_ip          = var.openstack_api_int_ip
   node_dns_ip         = var.openstack_node_dns_ip
+  ingress_ip          = var.openstack_ingress_ip
   trunk_support       = var.openstack_trunk_support
   octavia_support     = var.openstack_octavia_support
 }

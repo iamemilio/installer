@@ -55,6 +55,10 @@ resource "openstack_networking_port_v2" "masters" {
   allowed_address_pairs {
     ip_address = var.node_dns_ip
   }
+
+  allowed_address_pairs {
+    ip_address = var.ingress_ip
+  }
 }
 
 resource "openstack_networking_trunk_v2" "masters" {

@@ -41,6 +41,10 @@ variable "node_dns_ip" {
   type = string
 }
 
+variable "ingress_ip" {
+  type = string
+}
+
 variable "trunk_support" {
   type = string
 }
