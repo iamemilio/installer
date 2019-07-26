@@ -33,11 +33,11 @@ data "ignition_config" "master_ignition_config" {
 }
 
 resource "openstack_compute_instance_v2" "master_conf" {
-  name  = "${var.cluster_id}-master-${count.index}"
+  name = "${var.cluster_id}-master-${count.index}"
   count = var.instance_count
 
-  flavor_id       = data.openstack_compute_flavor_v2.masters_flavor.id
-  image_id        = data.openstack_images_image_v2.masters_img.id
+  flavor_id = data.openstack_compute_flavor_v2.masters_flavor.id
+  image_id = data.openstack_images_image_v2.masters_img.id
   security_groups = var.master_sg_ids
   user_data = element(
     data.ignition_config.master_ignition_config.*.rendered,
