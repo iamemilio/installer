@@ -20,20 +20,6 @@ EOF
   }
 }
 
-data "ignition_file" "clustervars" {
-  filesystem = "root"
-  mode = "420" // 0644
-  path = "/etc/kubernetes/static-pod-resources/clustervars"
-
-  content {
-    content = <<EOF
-export API_VIP=${var.api_int_ip}
-export DNS_VIP=${var.node_dns_ip}
-export BOOTSTRAP_IP=${var.bootstrap_ip}
-EOF
-  }
-}
-
 data "ignition_config" "master_ignition_config" {
   count = var.instance_count
 
@@ -42,8 +28,7 @@ data "ignition_config" "master_ignition_config" {
   }
 
   files = [
-    element(data.ignition_file.hostname.*.id, count.index),
-    data.ignition_file.clustervars.id,
+    element(data.ignition_file.hostname.*.id, count.index)
   ]
 }
 

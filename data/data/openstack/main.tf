@@ -27,30 +27,21 @@ module "bootstrap" {
 
   swift_container   = openstack_objectstorage_container_v1.container.name
   cluster_id        = var.cluster_id
-  cluster_domain    = var.cluster_domain
   image_name        = var.openstack_base_image
   flavor_name       = var.openstack_master_flavor_name
   ignition          = var.ignition_bootstrap
   bootstrap_port_id = module.topology.bootstrap_port_id
-  api_int_ip        = var.openstack_api_int_ip
-  node_dns_ip       = var.openstack_node_dns_ip
 }
 
 module "masters" {
   source = "./masters"
 
   base_image      = var.openstack_base_image
-  bootstrap_ip    = module.topology.bootstrap_port_ip
   cluster_id      = var.cluster_id
-  cluster_domain  = var.cluster_domain
   flavor_name     = var.openstack_master_flavor_name
   instance_count  = var.master_count
-  lb_floating_ip  = var.openstack_lb_floating_ip
-  master_ips      = module.topology.master_ips
   master_port_ids = module.topology.master_port_ids
   user_data_ign   = var.ignition_master
-  api_int_ip      = var.openstack_api_int_ip
-  node_dns_ip     = var.openstack_node_dns_ip
   master_sg_ids = concat(
     var.openstack_master_extra_sg_ids,
     [module.topology.master_sg_id],

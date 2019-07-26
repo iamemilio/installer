@@ -20,7 +20,6 @@ data "ignition_config" "redirect" {
     data.ignition_file.hostname.id,
     data.ignition_file.dns_conf.id,
     data.ignition_file.dhcp_conf.id,
-    data.ignition_file.hosts.id,
   ]
 }
 
@@ -42,22 +41,10 @@ data "ignition_file" "dns_conf" {
   mode = "420"
   path = "/etc/dhcp/dhclient.conf"
 
-  # FIXME(mandre) this will likely cause delay with bootstrap node networking
-  # until the master come up and are able to serve DNS queries.  Not sure the
-  # bootstrap is trying to resolve anything it doesn't have in its hosts
-  # file...
-  # BareMetal solved this by running coredns on the bootstrap node
-  #
-  # NOTE(shadower) bootstrap's waiting for the etcd cluster seems to
-  # always fail the first time because of this. The second attempt
-  # succeeds, but we should probably run the core dns there too so
-  # that:
-  # 1. We don't show spurious errors in the logs
-  # 2. Align better with what the baremetal platfrorm is doing
   content {
     content = <<EOF
 send dhcp-client-identifier = hardware;
-prepend domain-name-servers ${var.node_dns_ip};
+prepend domain-name-servers 127.0.0.1;
 EOF
   }
 }
@@ -70,20 +57,6 @@ data "ignition_file" "hostname" {
   content {
     content = <<EOF
 ${var.cluster_id}-bootstrap
-EOF
-  }
-}
-
-data "ignition_file" "hosts" {
-  filesystem = "root"
-  mode = "420" // 0644
-  path = "/etc/hosts"
-
-  content {
-    content = <<EOF
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-${var.api_int_ip} api-int.${var.cluster_domain} api.${var.cluster_domain}
 EOF
   }
 }
