@@ -46,7 +46,6 @@ type bootstrapTemplateData struct {
 	ReleaseImage          string
 	Proxy                 *configv1.ProxyStatus
 	Registries            []sysregistriesv2.Registry
-	InstallConfig         *types.InstallConfig
 }
 
 // Bootstrap is an asset that generates the ignition config for bootstrap nodes.
@@ -221,7 +220,6 @@ func (a *Bootstrap) getTemplateData(installConfig *types.InstallConfig, releaseI
 	return &bootstrapTemplateData{
 		AdditionalTrustBundle: installConfig.AdditionalTrustBundle,
 		PullSecret:            installConfig.PullSecret,
-		InstallConfig:         installConfig,
 		ReleaseImage:          releaseImage,
 		EtcdCluster:           strings.Join(etcdEndpoints, ","),
 		Proxy:                 &proxy.Status,
