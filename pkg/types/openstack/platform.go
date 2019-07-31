@@ -55,6 +55,13 @@ type Platform struct {
 	// The value is set by the installer from the MachineCIDR range.
 	IngressVIP string `json:"ingressVIP"`
 
+	// ExternalDNS
+	// IP addresses of dns servers that will be added to the private
+	// networks managed by the installer
+	//
+	// This is an optional parameter, default value: empty
+	ExternalDNS []string `json:"externalDNS"`
+
 	// TrunkSupport
 	// Whether OpenStack ports can be trunked
 	TrunkSupport string `json:"trunkSupport"`

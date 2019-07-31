@@ -74,6 +74,12 @@ func ValidatePlatform(p *openstack.Platform, fldPath *field.Path, fetcher ValidV
 		allErrs = append(allErrs, field.Invalid(fldPath.Child("dnsVIP"), p.DNSVIP, err.Error()))
 	}
 
+	for _, ip := range p.ExternalDNS {
+		if err := validate.IP(ip); err != nil {
+			allErrs = append(allErrs, field.Invalid(fldPath.Child("ExternalDNS"), p.ExternalDNS, err.Error()))
+		}
+	}
+
 	return allErrs
 }
 

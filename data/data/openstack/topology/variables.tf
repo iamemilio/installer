@@ -51,6 +51,10 @@ variable "ingress_ip" {
   type = string
 }
 
+variable "external_dns" {
+  type = list(string)
+}
+
 variable "trunk_support" {
   type = string
 }
