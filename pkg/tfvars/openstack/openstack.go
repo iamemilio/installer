@@ -8,18 +8,19 @@ import (
 )
 
 type config struct {
-	Region          string `json:"openstack_region,omitempty"`
-	BaseImage       string `json:"openstack_base_image,omitempty"`
-	ExternalNetwork string `json:"openstack_external_network,omitempty"`
-	Cloud           string `json:"openstack_credentials_cloud,omitempty"`
-	FlavorName      string `json:"openstack_master_flavor_name,omitempty"`
-	LbFloatingIP    string `json:"openstack_lb_floating_ip,omitempty"`
-	TrunkSupport    string `json:"openstack_trunk_support,omitempty"`
-	OctaviaSupport  string `json:"openstack_octavia_support,omitempty"`
+	Region          string   `json:"openstack_region,omitempty"`
+	BaseImage       string   `json:"openstack_base_image,omitempty"`
+	ExternalNetwork string   `json:"openstack_external_network,omitempty"`
+	Cloud           string   `json:"openstack_credentials_cloud,omitempty"`
+	FlavorName      string   `json:"openstack_master_flavor_name,omitempty"`
+	LbFloatingIP    string   `json:"openstack_lb_floating_ip,omitempty"`
+	ExternalDNS     []string `json:"openstack_external_dns,omitempty"`
+	TrunkSupport    string   `json:"openstack_trunk_support,omitempty"`
+	OctaviaSupport  string   `json:"openstack_octavia_support,omitempty"`
 }
 
 // TFVars generates OpenStack-specific Terraform variables.
-func TFVars(masterConfig *v1alpha1.OpenstackProviderSpec, region string, externalNetwork string, lbFloatingIP string, trunkSupport string, octaviaSupport string) ([]byte, error) {
+func TFVars(masterConfig *v1alpha1.OpenstackProviderSpec, region string, externalNetwork string, lbFloatingIP string, externalDNS []string, trunkSupport string, octaviaSupport string) ([]byte, error) {
 	cfg := &config{
 		Region:          region,
 		BaseImage:       masterConfig.Image,
@@ -27,6 +28,7 @@ func TFVars(masterConfig *v1alpha1.OpenstackProviderSpec, region string, externa
 		Cloud:           masterConfig.CloudName,
 		FlavorName:      masterConfig.Flavor,
 		LbFloatingIP:    lbFloatingIP,
+		ExternalDNS:     externalDNS,
 		TrunkSupport:    trunkSupport,
 		OctaviaSupport:  octaviaSupport,
 	}

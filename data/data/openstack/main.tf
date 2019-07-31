@@ -84,6 +84,7 @@ module "topology" {
   external_network_id = var.openstack_external_network_id
   masters_count       = var.master_count
   lb_floating_ip      = var.openstack_lb_floating_ip
+  external_dns        = var.openstack_external_dns
   trunk_support       = var.openstack_trunk_support
   octavia_support     = var.openstack_octavia_support
 }

@@ -28,6 +28,13 @@ type Platform struct {
 	// Existing Floating IP to associate with the OpenStack load balancer.
 	LbFloatingIP string `json:"lbFloatingIP"`
 
+	// ExternalDNS
+	// IP addresses of dns servers that will be added to the private
+	// networks managed by the installer
+	//
+	// This is an optional parameter, default value:[]
+	ExternalDNS []string `json:"externalDNS"`
+
 	// TrunkSupport
 	// Whether OpenStack ports can be trunked
 	TrunkSupport string `json:"trunkSupport"`

@@ -34,6 +34,10 @@ variable "masters_count" {
   type = string
 }
 
+variable "external_dns" {
+  type = list(string)
+}
+
 variable "trunk_support" {
   type = string
 }
