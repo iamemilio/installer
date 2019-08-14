@@ -7,15 +7,13 @@ try out what exists so far.
 
 ## Openstack Credentials
 
-There are two ways to pass your credentials to the installer, with a clouds.yaml file or with environment variables. You can also use a combination of the two, but be aware that clouds.yaml file has precident over the environment variables you set.
-
-The installer will look for a clouds.yaml file in the following locations in order:
+You must have a clouds.yaml file in order to run the installer. The installer will look for a clouds.yaml file in the following locations in order:
 1. OS_CLIENT_CONFIG_FILE
 2. Current directory
 3. unix-specific user config directory (~/.config/openstack/clouds.yaml)
 4. unix-specific site config directory (/etc/openstack/clouds.yaml)
 
-In many openstack distributions, you can get a clouds.yaml file through Horizon. If you cant, then you can make a `clouds.yaml` file yourself. Information on
+In many OpenStack distributions, you can get a clouds.yaml file through Horizon. If you cant, then you can make a `clouds.yaml` file yourself. Information on
     this file can be found at https://docs.openstack.org/openstacksdk/latest/user/config/configuration.html#config-files
     and it looks like:
 ```
@@ -37,9 +35,7 @@ clouds:
       auth_url: 'https://10.10.14.22:5001/v2.0'
 ```
 
-If you choose to use environment variables in place of a clouds.yaml, or along side it, consult the following doccumentation:
-https://www.terraform.io/docs/providers/openstack/#configuration-reference
-
+There are also a number of [environment variables](https://www.terraform.io/docs/providers/openstack/#configuration-reference) that can be used to configure your connection to OpenStack. Please note that the values in your clouds.yaml have priority.
 
 ## OpenStack Requirements
 
@@ -107,15 +103,25 @@ openstack network list --long -c ID -c Name -c "Router Type"
 
 **NOTE:** If the `neutron` `trunk` service plugin is enabled, trunk port will be created by default. for more information, please refer to [neutron trunk port](https://wiki.openstack.org/wiki/Neutron/TrunkPort).
 
-### Isolated Development
+### Isolated Development Environment
 
 If you would like to set up an isolated development environment, you may use a
-bare metal host running CentOS 7.  The following repository includes some
+bare metal host running CentOS 7. The following repository includes some
 instructions and scripts to help with creating a single-node OpenStack
-development environment for running the installer.  Please refer to the
+development environment for running the installer. Please refer to the
 documentation in that repository for further details.
 
 * https://github.com/shiftstack-dev-tools/ocp-doit
+
+## Running the Installer
+
+### Initial Setup
+
+If you don't already have the OpenShift Client Tools, follow [these steps](https://docs.openshift.com/enterprise/3.0/cli_reference/get_started_cli.html). Once you have that set up, download the latest stable versions of the [installer](https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/). You will need to unzip the tarball with the following command:
+```sh
+tar -xvf openshift-install-OS-VERSION.tar.gz
+```
+By default, the installer will present you with a series of prompts and autmoatically generate a file called `install-config.yaml`. However, users who need more advanced customization options can also create their own install-config if they want to bypass the prompts. If you wish to create your own install config, you should first read this [recommended workflow](../overview.md#multiple-invocations), we will base our assumptions and examples off this workflow from this point foward. To learn more about the install-config, and what customizations are available, please refer to [this document](customization.md).
 
 ## API Access
 
