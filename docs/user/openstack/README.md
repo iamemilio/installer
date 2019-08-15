@@ -83,9 +83,9 @@ If both are omitted, then the cloud name defaults to `openstack`.
 
 There are certian environment variables that you can set along side a `clouds.yaml`, consult the following [documentation](https://www.terraform.io/docs/providers/openstack/#configuration-reference) for more information.
 
-## RHCOS Image
+## Red Hat Enterprise Linux CoreOS (RHCOS)
 
-If you do not have a Red Hat Core OS image already, get the latest image [here](https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/latest/). The installer requires a proper RHCOS image in the OpenStack cluster or project:
+Get the latest RHCOS image [here](https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/latest/). The installer requires a proper RHCOS image in the OpenStack cluster or project:
 
 ```sh
 openstack image create --container-format=bare --disk-format=qcow2 --file rhcos-${RHCOSVERSION}-openstack.qcow2 rhcos
