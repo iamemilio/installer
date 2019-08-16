@@ -17,8 +17,12 @@ type Platform struct {
 	Cloud string `json:"cloud"`
 
 	// ExternalNetwork
-	// The OpenStack external network name to be used for installation.
+	// The Unique Name of the external network you want to connect your cluster to
 	ExternalNetwork string `json:"externalNetwork"`
+
+	// ExternalNetworkID
+	// Either this value, or ExternalNetwork MUST be provided
+	ExternalNetworkID string `json:"externalNetworkID"`
 
 	// FlavorName
 	// The OpenStack compute flavor to use for servers.

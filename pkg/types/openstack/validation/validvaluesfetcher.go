@@ -9,7 +9,7 @@ type ValidValuesFetcher interface {
 	// GetRegionNames gets the valid region names.
 	GetRegionNames(cloud string) ([]string, error)
 	// GetNetworkNames gets the valid network names.
-	GetNetworkNames(cloud string) ([]string, error)
+	GetNetworks(cloud string) ([]string, []string, error)
 	// GetFlavorNames gets the valid flavor names.
 	GetFlavorNames(cloud string) ([]string, error)
 	// GetNetworkExtensionsAliases gets the aliases for all the networking enabled extensions

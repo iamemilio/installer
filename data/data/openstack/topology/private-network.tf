@@ -3,7 +3,6 @@ locals {
 }
 
 data "openstack_networking_network_v2" "external_network" {
-  name       = var.external_network
   network_id = var.external_network_id
   external   = true
 }

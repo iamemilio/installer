@@ -2,6 +2,7 @@ package validation
 
 import (
 	"errors"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
@@ -24,12 +25,39 @@ func ValidatePlatform(p *openstack.Platform, n *types.Networking, fldPath *field
 		} else if !isValidValue(p.Region, validRegions) {
 			allErrs = append(allErrs, field.NotSupported(fldPath.Child("region"), p.Region, validRegions))
 		}
-		validNetworks, err := fetcher.GetNetworkNames(p.Cloud)
+		validNetworkIDs, validNetworkNames, err := fetcher.GetNetworks(p.Cloud)
+		fmt.Printf("Name: %s\nID: %s\n", p.ExternalNetwork, p.ExternalNetworkID)
 		if err != nil {
 			allErrs = append(allErrs, field.InternalError(fldPath.Child("externalNetwork"), errors.New("could not retrieve valid networks")))
-		} else if !isValidValue(p.ExternalNetwork, validNetworks) {
-			allErrs = append(allErrs, field.NotSupported(fldPath.Child("externalNetwork"), p.ExternalNetwork, validNetworks))
+		} else {
+			if p.ExternalNetwork == "" && p.ExternalNetworkID == "" {
+				allErrs = append(allErrs, field.NotFound(fldPath.Child("ExternalNetwork"), errors.New("No external network provided")))
+			}
+			if p.ExternalNetwork != "" {
+				if !isValidValue(p.ExternalNetwork, validNetworkNames) {
+					allErrs = append(allErrs, field.NotSupported(fldPath.Child("externalNetwork"), p.ExternalNetwork, validNetworkNames))
+				} else if p.ExternalNetworkID == "" {
+					p.ExternalNetworkID = IDFromName(p.ExternalNetwork, validNetworkIDs, validNetworkNames)
+				}
+			}
+			if p.ExternalNetworkID != "" {
+				if !isValidValue(p.ExternalNetworkID, validNetworkIDs) {
+					allErrs = append(allErrs, field.NotSupported(fldPath.Child("externalNetworkID"), p.ExternalNetworkID, validNetworkIDs))
+				} else if p.ExternalNetwork == "" {
+					p.ExternalNetwork = nameFromID(p.ExternalNetworkID, validNetworkIDs, validNetworkNames)
+				}
+			}
+			// If both are provided, then both have already been individually validated
+			// just need to test to make sure they match
+			if p.ExternalNetworkID != "" && p.ExternalNetwork != "" {
+				if nameFromID(p.ExternalNetworkID, validNetworkIDs, validNetworkNames) != p.ExternalNetwork {
+					allErrs = append(allErrs, field.NotFound(fldPath.Child("ExternalNetwork"), errors.New("External network name and ID mismatch")))
+				}
+			}
 		}
+
+		fmt.Printf("Name: %s\nID: %s\n", p.ExternalNetwork, p.ExternalNetworkID)
+
 		validFlavors, err := fetcher.GetFlavorNames(p.Cloud)
 		if err != nil {
 			allErrs = append(allErrs, field.InternalError(fldPath.Child("computeFlavor"), errors.New("could not retrieve valid flavors")))
@@ -71,4 +99,22 @@ func isValidValue(s string, validValues []string) bool {
 		}
 	}
 	return false
+}
+
+func IDFromName(name string, ids []string, names []string) string {
+	for k, v := range names {
+		if name == v {
+			return ids[k]
+		}
+	}
+	return ""
+}
+
+func nameFromID(id string, ids []string, names []string) string {
+	for k, v := range ids {
+		if id == v {
+			return names[k]
+		}
+	}
+	return ""
 }

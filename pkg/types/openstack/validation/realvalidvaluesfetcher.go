@@ -63,33 +63,35 @@ func (f realValidValuesFetcher) GetRegionNames(cloud string) ([]string, error) {
 }
 
 // GetNetworkNames gets the valid network names.
-func (f realValidValuesFetcher) GetNetworkNames(cloud string) ([]string, error) {
+func (f realValidValuesFetcher) GetNetworks(cloud string) ([]string, []string, error) {
 	opts := &clientconfig.ClientOpts{
 		Cloud: cloud,
 	}
 
 	conn, err := clientconfig.NewServiceClient("network", opts)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	listOpts := networks.ListOpts{}
 	allPages, err := networks.List(conn, listOpts).AllPages()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	allNetworks, err := networks.ExtractNetworks(allPages)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	networkIDs := make([]string, len(allNetworks))
 	networkNames := make([]string, len(allNetworks))
 	for x, network := range allNetworks {
+		networkIDs[x] = network.ID
 		networkNames[x] = network.Name
 	}
 
-	return networkNames, nil
+	return networkIDs, networkNames, nil
 }
 
 // GetFlavorNames gets a list of valid flavor names.

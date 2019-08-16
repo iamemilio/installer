@@ -60,6 +60,7 @@ func TestValidatePlatform(t *testing.T) {
 			name: "missing external network",
 			platform: func() *openstack.Platform {
 				p := validPlatform()
+				p.ExternalNetworkID = ""
 				p.ExternalNetwork = ""
 				return p
 			}(),

@@ -71,31 +71,71 @@ func Platform() (*openstack.Platform, error) {
 		return nil, err
 	}
 
-	networkNames, err := validValuesFetcher.GetNetworkNames(cloud)
-	if err != nil {
-		return nil, err
-	}
-	sort.Strings(networkNames)
-	var extNet string
+	var nameOrID string
 	err = survey.Ask([]*survey.Question{
 		{
 			Prompt: &survey.Select{
-				Message: "ExternalNetwork",
-				Help:    "The OpenStack external network name to be used for installation.",
-				Options: networkNames,
+				Message: "External Network Name or ID",
+				Help:    "Choose whether you want to specify external network by its name or ID",
+				Options: []string{
+					"name",
+					"id",
+				},
 			},
-			Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
-				value := ans.(string)
-				i := sort.SearchStrings(networkNames, value)
-				if i == len(networkNames) || networkNames[i] != value {
-					return errors.Errorf("invalid network name %q, should be one of %+v", value, strings.Join(networkNames, ", "))
-				}
-				return nil
-			}),
 		},
-	}, &extNet)
+	}, &nameOrID)
+
+	networkIDs, networkNames, err := validValuesFetcher.GetNetworks(cloud)
 	if err != nil {
 		return nil, err
+	}
+
+	var extNetID string
+	var extNetName string
+	if nameOrID == "id" {
+		sort.Strings(networkIDs)
+		err = survey.Ask([]*survey.Question{
+			{
+				Prompt: &survey.Select{
+					Message: "ExternalNetworkID",
+					Help:    "The OpenStack external network ID to be used for installation.",
+					Options: networkIDs,
+				},
+				Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
+					value := ans.(string)
+					i := sort.SearchStrings(networkIDs, value)
+					if i == len(networkIDs) || networkIDs[i] != value {
+						return errors.Errorf("invalid network name %q, should be one of %+v", value, strings.Join(networkIDs, ", "))
+					}
+					return nil
+				}),
+			},
+		}, &extNetID)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		sort.Strings(networkNames)
+		err = survey.Ask([]*survey.Question{
+			{
+				Prompt: &survey.Select{
+					Message: "ExternalNetwork",
+					Help:    "The OpenStack external network name to be used for installation.",
+					Options: networkNames,
+				},
+				Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
+					value := ans.(string)
+					i := sort.SearchStrings(networkNames, value)
+					if i == len(networkNames) || networkNames[i] != value {
+						return errors.Errorf("invalid network name %q, should be one of %+v", value, strings.Join(networkNames, ", "))
+					}
+					return nil
+				}),
+			},
+		}, &extNetName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	flavorNames, err := validValuesFetcher.GetFlavorNames(cloud)
@@ -152,11 +192,12 @@ func Platform() (*openstack.Platform, error) {
 	}
 
 	return &openstack.Platform{
-		Region:          region,
-		Cloud:           cloud,
-		ExternalNetwork: extNet,
-		FlavorName:      flavor,
-		TrunkSupport:    trunkSupport,
-		OctaviaSupport:  octaviaSupport,
+		Region:            region,
+		Cloud:             cloud,
+		ExternalNetwork:   extNetName,
+		ExternalNetworkID: extNetID,
+		FlavorName:        flavor,
+		TrunkSupport:      trunkSupport,
+		OctaviaSupport:    octaviaSupport,
 	}, nil
 }

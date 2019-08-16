@@ -216,9 +216,8 @@ variable "openstack_external_network" {
   default = ""
 
   description = <<EOF
-(optional) Name of the external network. The network is used to provide
-Floating IP access to the deployed nodes. Optional, but either the Name
-or UUID option must be specified.
+Name of the external network. The network is used to provide
+Floating IP access to the deployed nodes.
 EOF
 
 }
@@ -228,9 +227,8 @@ variable "openstack_external_network_id" {
   default = ""
 
   description = <<EOF
-(optional) UUID of the external network. The network is used to provide
-Floating IP access to the deployed nodes. Optional, but either the Name
-or UUID option must be specified.
+UUID of the external network. The network is used to provide
+Floating IP access to the deployed nodes.
 EOF
 
 }
