@@ -86,10 +86,12 @@ func provider(clusterID string, platform *openstack.Platform, mpool *openstack.M
 			Kind:       "OpenstackProviderSpec",
 		},
 		Flavor: mpool.FlavorName,
-		/*RootVolume: openstackprovider.RootVolume{
-			VolumeType: pointer.StringPtr(mpool.Type),
-			Size:       pointer.Int64Ptr(int64(mpool.Size)),
-		},*/
+		RootVolume: &openstackprovider.RootVolume{
+			Size:       mpool.RootVolume.Size,
+			SourceType: "image",
+			SourceUUID: osImage,
+			VolumeType: mpool.RootVolume.Type,
+		},
 		Image:          osImage,
 		CloudName:      CloudName,
 		CloudsSecret:   &corev1.SecretReference{Name: cloudsSecret, Namespace: cloudsSecretNamespace},
