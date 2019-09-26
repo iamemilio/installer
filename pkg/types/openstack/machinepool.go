@@ -8,7 +8,7 @@ type MachinePool struct {
 	FlavorName string `json:"type"`
 
 	// RootVolume defines the root volume for instances in the machine pool.
-	RootVolume `json:"rootVolume"`
+	RootVolume *RootVolume `json:"rootVolume,omitempty"`
 }
 
 // Set sets the values from `required` to `a`.
