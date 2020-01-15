@@ -91,7 +91,8 @@ func (cpc *CloudProviderConfig) Generate(dependencies asset.Parents) error {
 			return errors.Wrap(err, "failed to get cloud config for openstack")
 		}
 
-		cm.Data[cloudProviderConfigDataKey] = openstackmanifests.CloudProviderConfig(cloud.CloudConfig)
+		cm.Data[cloudProviderConfigDataKey] = openstackmanifests.CloudProviderConfig(cloud.CloudConfig, installConfig.Config.AdditionalTrustBundle != "")
+		cm.Data["additionalTrustBundle"] = installConfig.Config.AdditionalTrustBundle
 	case azuretypes.Name:
 		session, err := icazure.GetSession()
 		if err != nil {

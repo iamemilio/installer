@@ -8,7 +8,7 @@ import (
 )
 
 // CloudProviderConfig generates the cloud provider config for the OpenStack platform.
-func CloudProviderConfig(cloud *clientconfig.Cloud) string {
+func CloudProviderConfig(cloud *clientconfig.Cloud, additionalTrust bool) string {
 	res := `[Global]
 secret-name = openstack-credentials
 secret-namespace = kube-system
@@ -17,12 +17,16 @@ secret-namespace = kube-system
 		res += "region = " + cloud.RegionName + "\n"
 	}
 
+	if additionalTrust {
+		res += "ca-file = /etc/pki/ca-trust/source/anchors/additionalTrustBundle.pem\n"
+	}
+
 	return res
 }
 
 // CloudProviderConfigSecret generates the cloud provider config for the OpenStack
 // platform, that will be stored in the system secret.
-func CloudProviderConfigSecret(cloud *clientconfig.Cloud) ([]byte, error) {
+func CloudProviderConfigSecret(cloud *clientconfig.Cloud, additionalTrust bool) ([]byte, error) {
 	domainID := cloud.AuthInfo.DomainID
 	if domainID == "" {
 		domainID = cloud.AuthInfo.UserDomainID
@@ -65,9 +69,10 @@ func CloudProviderConfigSecret(cloud *clientconfig.Cloud) ([]byte, error) {
 	if cloud.RegionName != "" {
 		res.WriteString("region = " + strconv.Quote(cloud.RegionName) + "\n")
 	}
-	if cloud.CACertFile != "" {
-		res.WriteString("ca-file = " + strconv.Quote(cloud.CACertFile) + "\n")
-	}
+	/*	if cloud.CACertFile != "" {
+			res.WriteString("ca-file = " + strconv.Quote(cloud.CACertFile) + "\n")
+		}
+	*/
 
 	return []byte(res.String()), nil
 }
